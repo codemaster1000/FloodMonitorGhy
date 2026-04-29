@@ -736,6 +736,18 @@ export default function MapView({ onReportClick }: MapViewProps) {
     selectionControllerRef.current = selectLocation;
 
     const handleMapClick = (event: mapboxgl.MapMouseEvent) => {
+      // Check if layers exist before querying to avoid exception
+      const layers = ["flood-report-unclustered", "flood-report-clusters"].filter(
+        (id) => map.getLayer(id)
+      );
+
+      if (layers.length > 0) {
+        const clickedFeatures = map.queryRenderedFeatures(event.point, { layers });
+        if (clickedFeatures.length > 0) {
+          return; // Handled by specific layer listeners
+        }
+      }
+
       void selectLocation({
         latitude: event.lngLat.lat,
         longitude: event.lngLat.lng,
@@ -803,6 +815,8 @@ export default function MapView({ onReportClick }: MapViewProps) {
           water_level: report.water_level,
           created_at: report.created_at,
           id: report.id,
+          locality_name: report.locality_name,
+          locality_key: report.locality_key,
         },
       })),
     };
@@ -947,9 +961,16 @@ export default function MapView({ onReportClick }: MapViewProps) {
       new mapboxgl.Popup({ offset: 16 })
         .setLngLat(feature.geometry.coordinates as [number, number])
         .setHTML(
-          `<div style="font-family: sans-serif; font-size: 12px;"><strong>${(feature.properties?.water_level || "Unknown").toUpperCase()}</strong><br />${new Date(feature.properties?.created_at || "").toLocaleString()}</div>`,
+          `<div style="font-family: sans-serif; font-size: 13px; color: #0f172a; padding: 2px;"><strong>${(feature.properties?.water_level || "Unknown").toUpperCase()}</strong><br />${new Date(feature.properties?.created_at || "").toLocaleString()}</div>`,
         )
         .addTo(map);
+
+      // Trigger the selection UI to match the exact report locality
+      void selectionControllerRef.current?.({
+        latitude: feature.geometry.coordinates[1],
+        longitude: feature.geometry.coordinates[0],
+        preferredName: feature.properties?.locality_name,
+      });
     });
 
     map.on("mouseenter", unclusteredLayerId, () => {
