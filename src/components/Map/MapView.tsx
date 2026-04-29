@@ -7,15 +7,18 @@ import { reverseGeocodeLocality } from "../../services/mapboxGeocoding";
 import { reportMatchesLocality } from "../../utils/locality";
 import { isPointInPolygon } from "../../utils/pointInPolygon";
 
-const assamTimeFormatter = new Intl.DateTimeFormat("en-IN", {
+const assamDateTimeFormatter = new Intl.DateTimeFormat("en-IN", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
   hour: "2-digit",
   minute: "2-digit",
   hour12: true,
   timeZone: "Asia/Kolkata",
 });
 
-function formatAssamTime(value: string): string {
-  return assamTimeFormatter.format(new Date(value));
+function formatAssamDateTime(value: string): string {
+  return assamDateTimeFormatter.format(new Date(value));
 }
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
@@ -163,6 +166,10 @@ function SelectionPopupCard({
   const customLocation = useAppStore((state) => state.customLocation);
   const floodProneZones = useAppStore((state) => state.floodProneZones);
   const reports = useAppStore((state) => state.reports);
+  const [expandedImage, setExpandedImage] = useState<{
+    url: string;
+    time: string;
+  } | null>(null);
 
   const zone = useMemo(() => {
     return (
@@ -279,19 +286,21 @@ function SelectionPopupCard({
           {images.length > 0 ? (
             <div className="flex gap-2 overflow-x-auto pb-1">
               {images.map((image, index) => (
-                <div
+                <button
+                  type="button"
                   key={`${image.time}-${index}`}
-                  className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-slate-200"
+                  onClick={() => setExpandedImage(image)}
+                  className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-slate-200 text-left transition hover:scale-[1.03] focus:outline-none focus:ring-2 focus:ring-cyan-400"
                 >
                   <img
                     src={image.url}
                     alt="Flood report"
                     className="h-full w-full object-cover"
                   />
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/55 px-1 py-0.5 text-[9px] text-white backdrop-blur-sm">
-                    {formatAssamTime(image.time)}
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-1 py-0.5 text-[8px] leading-tight text-white backdrop-blur-sm">
+                    {formatAssamDateTime(image.time)}
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           ) : null}
@@ -310,6 +319,34 @@ function SelectionPopupCard({
       >
         Report Flood
       </button>
+
+      {expandedImage ? (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/80 p-4"
+          onClick={() => setExpandedImage(null)}
+        >
+          <div
+            className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <img
+              src={expandedImage.url}
+              alt="Flood report enlarged"
+              className="max-h-[75vh] w-full object-contain bg-slate-900"
+            />
+            <div className="flex items-center justify-between gap-3 px-4 py-3 text-sm text-slate-700">
+              <span>Uploaded: {formatAssamDateTime(expandedImage.time)}</span>
+              <button
+                type="button"
+                onClick={() => setExpandedImage(null)}
+                className="rounded-md border border-slate-200 px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
