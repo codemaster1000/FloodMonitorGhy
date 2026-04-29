@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="FloodMonitor">
+  <defs>
+    <linearGradient id="bg" x1="12" x2="52" y1="8" y2="58" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#bg)"/>
+  <path d="M13 43c7 0 7-5 14-5s7 5 14 5 7-5 14-5v12H13z" fill="#e0f2fe"/>
+  <path d="M19 35c5 0 5-4 10-4s5 4 10 4 5-4 10-4" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+  <path d="M32 11c-10 11-17 21-17 31 0 9 7 16 17 16s17-7 17-16c0-10-7-20-17-31z" fill="#f8fafc"/>
+  <circle cx="32" cy="35" r="8" fill="#0ea5e9"/>
+  <path d="M32 24v9" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round"/>
+</svg>

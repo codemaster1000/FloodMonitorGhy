@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192" role="img" aria-label="FloodMonitor">
+  <defs>
+    <linearGradient id="bg" x1="32" x2="160" y1="18" y2="176" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+    <filter id="shadow" width="160" height="168" x="16" y="18" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="10" flood-color="#0f172a" flood-opacity=".16" stdDeviation="8"/>
+    </filter>
+  </defs>
+  <rect width="192" height="192" rx="42" fill="url(#bg)"/>
+  <path d="M28 127c18 0 18-12 36-12s18 12 36 12 18-12 36-12 18 12 36 12v36H28z" fill="#dbeafe"/>
+  <path d="M44 106c13 0 13-9 26-9s13 9 26 9 13-9 26-9 13 9 26 9" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="12"/>
+  <g filter="url(#shadow)">
+    <path d="M96 30c-34 39-54 71-54 102 0 30 23 53 54 53s54-23 54-53c0-31-20-63-54-102z" fill="#f8fafc"/>
+    <circle cx="96" cy="113" r="25" fill="#0ea5e9"/>
+    <path d="M96 74v30" fill="none" stroke="#2563eb" stroke-linecap="round" stroke-width="12"/>
+  </g>
+</svg>

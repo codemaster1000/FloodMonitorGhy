@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#2563eb" />
+    <title>FloodMonitor offline</title>
+    <style>
+      :root {
+        color: #0f172a;
+        font-family: Manrope, "Segoe UI", sans-serif;
+        background: #f8fafc;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      main {
+        width: min(100%, 440px);
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        background: #ffffff;
+        padding: 28px;
+        box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-size: 1.5rem;
+        line-height: 1.2;
+      }
+
+      p {
+        margin: 0 0 20px;
+        color: #475569;
+        line-height: 1.55;
+      }
+
+      a {
+        color: #2563eb;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>You are offline</h1>
+      <p>
+        FloodMonitor needs a network connection for fresh reports, map tiles,
+        and submissions. Previously opened app files will load again when the
+        connection returns.
+      </p>
+      <a href="/">Try again</a>
+    </main>
+  </body>
+</html>
