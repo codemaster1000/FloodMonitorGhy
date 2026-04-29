@@ -566,10 +566,6 @@ export default function MapView({ onReportClick }: MapViewProps) {
       longitude,
       preferredName,
     }: LocationSelectionInput) => {
-      if (selectionPopupRef.current) {
-        return;
-      }
-
       const selectionId = ++selectionRequestIdRef.current;
       const mapHeight = map.getContainer().clientHeight;
       const verticalOffset = Math.min(Math.max(mapHeight * 0.14, 64), 140);

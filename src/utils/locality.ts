@@ -26,5 +26,29 @@ export function reportMatchesLocality(
 
   return [report.locality_key, report.locality_name]
     .filter((value): value is string => Boolean(value))
-    .some((value) => normalizeLocalityLabel(value) === normalizedSelectedName);
+    .some((value) => {
+      const normalizedCandidate = normalizeLocalityLabel(value);
+
+      if (normalizedCandidate === normalizedSelectedName) {
+        return true;
+      }
+
+      // Reverse geocoding may return longer labels (e.g. lane + landmark).
+      // Accept contains-based matches for meaningful locality strings.
+      if (
+        normalizedCandidate.length >= 6 &&
+        normalizedSelectedName.includes(normalizedCandidate)
+      ) {
+        return true;
+      }
+
+      if (
+        normalizedSelectedName.length >= 6 &&
+        normalizedCandidate.includes(normalizedSelectedName)
+      ) {
+        return true;
+      }
+
+      return false;
+    });
 }
