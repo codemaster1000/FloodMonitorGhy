@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import { useAppStore } from "../../store/useAppStore";
 import { reportMatchesLocality } from "../../utils/locality";
 
@@ -40,10 +40,9 @@ export default function LocalityPanel({ onReportClick }: LocalityPanelProps) {
   );
   const floodProneZones = useAppStore((state) => state.floodProneZones);
   const reports = useAppStore((state) => state.reports);
-  const [expandedImage, setExpandedImage] = useState<{
-    url: string;
-    time: string;
-  } | null>(null);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
 
   const zone = useMemo(() => {
     return floodProneZones?.features.find(
@@ -146,7 +145,7 @@ export default function LocalityPanel({ onReportClick }: LocalityPanelProps) {
                 <button
                   type="button"
                   key={i}
-                  onClick={() => setExpandedImage(img)}
+                  onClick={() => setExpandedIndex(i)}
                   className="relative h-20 w-20 shrink-0 overflow-hidden rounded-md border border-slate-200 text-left transition hover:scale-[1.03] focus:outline-none focus:ring-2 focus:ring-cyan-400"
                 >
                   <img
@@ -176,25 +175,55 @@ export default function LocalityPanel({ onReportClick }: LocalityPanelProps) {
         Report Flood Here
       </button>
 
-      {expandedImage ? (
+      {expandedIndex !== null && images[expandedIndex] ? (
         <div
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/80 p-4"
-          onClick={() => setExpandedImage(null)}
+          onClick={() => setExpandedIndex(null)}
+          onTouchStart={(e) => (touchStartX.current = e.touches[0].clientX)}
+          onTouchMove={(e) => (touchEndX.current = e.touches[0].clientX)}
+          onTouchEnd={() => {
+            if (touchStartX.current == null || touchEndX.current == null) return;
+            const diff = touchStartX.current - touchEndX.current;
+            const threshold = 40;
+            if (diff > threshold) {
+              setExpandedIndex((i) => (i == null ? null : (i + 1) % images.length));
+            } else if (diff < -threshold) {
+              setExpandedIndex((i) => (i == null ? null : (i - 1 + images.length) % images.length));
+            }
+            touchStartX.current = null;
+            touchEndX.current = null;
+          }}
         >
           <div
-            className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl"
+            className="w-full max-w-3xl overflow-hidden rounded-2xl bg-white shadow-2xl"
             onClick={(event) => event.stopPropagation()}
           >
+            <button
+              type="button"
+              onClick={() => setExpandedIndex((i) => (i == null ? null : (i - 1 + images.length) % images.length))}
+              className="absolute left-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/80 p-2 shadow hover:bg-white"
+              aria-label="Previous image"
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              onClick={() => setExpandedIndex((i) => (i == null ? null : (i + 1) % images.length))}
+              className="absolute right-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/80 p-2 shadow hover:bg-white"
+              aria-label="Next image"
+            >
+              ›
+            </button>
             <img
-              src={expandedImage.url}
+              src={images[expandedIndex].url}
               alt="Flood report enlarged"
               className="max-h-[75vh] w-full object-contain bg-slate-900"
             />
             <div className="flex items-center justify-between gap-3 px-4 py-3 text-sm text-slate-700">
-              <span>Uploaded: {formatAssamDateTime(expandedImage.time)}</span>
+              <span>Uploaded: {formatAssamDateTime(images[expandedIndex].time)}</span>
               <button
                 type="button"
-                onClick={() => setExpandedImage(null)}
+                onClick={() => setExpandedIndex(null)}
                 className="rounded-md border border-slate-200 px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50"
               >
                 Close
