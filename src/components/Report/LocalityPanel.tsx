@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useAppStore } from "../../store/useAppStore";
+import { reportMatchesLocality } from "../../utils/locality";
 
 const assamTimeFormatter = new Intl.DateTimeFormat("en-IN", {
   hour: "2-digit",
@@ -33,18 +34,21 @@ export default function LocalityPanel({ onReportClick }: LocalityPanelProps) {
   }, [floodProneZones, selectedLocalityId]);
 
   const localityReports = useMemo(() => {
-    if (selectedLocalityId) {
-      return reports
-        .filter((r) => r.locality_key === selectedLocalityId)
-        .sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-        );
-    }
-    // If it's a custom point, maybe show nearby reports in the future.
-    // For now, it's just empty.
-    return [];
-  }, [reports, selectedLocalityId]);
+    const selectedLocalityName = zone?.properties.name ?? customLocation?.name;
+
+    return reports
+      .filter((report) =>
+        reportMatchesLocality(
+          report,
+          selectedLocalityId,
+          selectedLocalityName,
+        ),
+      )
+      .sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      );
+  }, [customLocation?.name, reports, selectedLocalityId, zone?.properties.name]);
 
   if (!selectedLocalityId && !customLocation) {
     return null;

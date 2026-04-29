@@ -14,6 +14,7 @@ import { useRealtimeReports } from "./hooks/useRealtimeReports";
 import { isSupabaseConfigured } from "./services/supabaseClient";
 import { useAppStore } from "./store/useAppStore";
 import type { WaterLevel } from "./types/FloodReport";
+import { normalizeLocalityLabel } from "./utils/locality";
 
 function App() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -146,13 +147,18 @@ function App() {
       const state = useAppStore.getState();
       const customLocation = state.customLocation;
       const selectedLocalityId = state.selectedLocalityId;
+      const localityKey =
+        selectedLocalityId ??
+        (customLocation?.name
+          ? normalizeLocalityLabel(customLocation.name)
+          : null);
       let imageUrl: string | null = null;
       let imagePath: string | null = null;
 
       if (payload.imageFile) {
         const uploadedImage = await uploadReportImage(
           payload.imageFile,
-          selectedLocalityId,
+          localityKey,
         );
         imageUrl = uploadedImage.imageUrl;
         imagePath = uploadedImage.imagePath;
@@ -161,7 +167,7 @@ function App() {
       const newReport = await submitReport({
         latitude: customLocation?.latitude ?? payload.latitude,
         longitude: customLocation?.longitude ?? payload.longitude,
-        locality_key: selectedLocalityId ?? undefined,
+        locality_key: localityKey ?? undefined,
         locality_name: customLocation?.name ?? undefined,
         water_level: payload.waterLevel,
         image_url: imageUrl,

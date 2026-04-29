@@ -4,6 +4,7 @@ import { createRoot, type Root } from "react-dom/client";
 import LocationSearchBar from "./LocationSearchBar";
 import { useAppStore } from "../../store/useAppStore";
 import { reverseGeocodeLocality } from "../../services/mapboxGeocoding";
+import { reportMatchesLocality } from "../../utils/locality";
 import { isPointInPolygon } from "../../utils/pointInPolygon";
 
 const assamTimeFormatter = new Intl.DateTimeFormat("en-IN", {
@@ -174,18 +175,23 @@ function SelectionPopupCard({
   const localityName =
     customLocation?.name ?? zone?.properties.name ?? "Finding location...";
   const localityReports = useMemo(() => {
-    if (!selectedLocalityId) {
-      return [];
-    }
+    const selectedLocalityName =
+      customLocation?.name ?? zone?.properties.name ?? null;
 
     return reports
-      .filter((report) => report.locality_key === selectedLocalityId)
+      .filter((report) =>
+        reportMatchesLocality(
+          report,
+          selectedLocalityId,
+          selectedLocalityName,
+        ),
+      )
       .sort(
         (left, right) =>
           new Date(right.created_at).getTime() -
           new Date(left.created_at).getTime(),
       );
-  }, [reports, selectedLocalityId]);
+  }, [customLocation?.name, reports, selectedLocalityId, zone?.properties.name]);
 
   const latestReport = localityReports[0];
   const images = localityReports
