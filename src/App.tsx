@@ -39,6 +39,7 @@ function App() {
   const upsertReport = useAppStore((state) => state.upsertReport);
   const removeReport = useAppStore((state) => state.removeReport);
   const setIsSubmitting = useAppStore((state) => state.setIsSubmitting);
+  const lastReloadTimeRef = useRef<number>(0);
 
   useRealtimeReports({
     enabled: isSupabaseConfigured,
@@ -134,6 +135,29 @@ function App() {
       zoom: hasAccurateFix ? 15.2 : 13.4,
     });
   }, [accuracy, latitude, longitude, setCurrentLocation, setMapCenter]);
+
+  useEffect(() => {
+    if (!realtimeError) {
+      return;
+    }
+
+    // Debounce reload to avoid rapid reloads: only reload if last reload was > 5 seconds ago
+    const now = Date.now();
+    if (now - lastReloadTimeRef.current < 5000) {
+      return;
+    }
+
+    lastReloadTimeRef.current = now;
+
+    // Delay reload by 2 seconds to give user time to see the error message
+    const reloadTimer = setTimeout(() => {
+      window.location.reload();
+    }, 2000);
+
+    return () => {
+      clearTimeout(reloadTimer);
+    };
+  }, [realtimeError]);
 
   const handleReportSubmit = async (payload: {
     latitude: number;
